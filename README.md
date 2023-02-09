@@ -1,6 +1,6 @@
 
-# 390
-
+# ELEC390  
+  
 ## General procedure for data collection:
 - Each team member will place the phone in 5 different positions and perform both activities for one minute in each position, totalling 10 minutes of raw data for each member. 
 
