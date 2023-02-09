@@ -1,11 +1,14 @@
+
 # 390
 
-## Procedure for data collection.
-Each team member will place the phone in 5 different positions and perform both activities for one minute in each position, totalling 10 minutes of raw data for each member. 
+## General procedure for data collection:
+- Each team member will place the phone in 5 different positions and perform both activities for one minute in each position, totalling 10 minutes of raw data for each member. 
 
-collected using each of our phones using phyfox (acceleration without g)
+- Data was collected using each individual's phone, using Phyphox  on the "Acceleration (without g)" setting.
 
-Each team member will collect the following data (1 minute for each):  
+-  Each team member will perform the following for one (1) minute, totalling thirty-six (36) individual samples:
+
+CODE ACTIVITY PLACEMENT
 0 [Walking] Right-hand pant pocket  
 1 [Walking] Left-hand pant pocket  
 2 [Walking] Right-hand jacket pocket  
@@ -20,8 +23,8 @@ Each team member will collect the following data (1 minute for each):
 11 [Jumping] Right-hand
   
   
-File name formatting will adhere to:  
-Activity_Number-FirstName
+- File name formatting will adhere to:  
+Activity_Number-FirstName.zip
   
-Example:
-*2-Zack* indicates walking right hand jacket pocket for Zack
+- Example:
+*2-Zack.zip* Indicates "walking right hand jacket pocket" for Zack
