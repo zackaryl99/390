@@ -29,3 +29,7 @@ Activity_Number-FirstName.zip
   
 - Example:
 *2-Zack.zip* Indicates "walking right hand jacket pocket" for Zack
+
+
+## Notes on Data Collection:  
+- The placement of the phone (in the pocket, or the way in which it was held) varied among team mates. We therefore expect acceleration to be consistent in magnitude / frequency / etc, but in different axis between team mates.
