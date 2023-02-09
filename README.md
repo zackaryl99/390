@@ -1,6 +1,6 @@
 # 390
 
-##Procedure for data collection.
+## Procedure for data collection.
 Each team member will place the phone in 5 different positions and perform both activities for one minute in each position, totalling 10 minutes of raw data for each member. 
 
 Each team member will collect the following data (1 minute for each):
