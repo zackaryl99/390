@@ -9,12 +9,17 @@ Each team member will collect the following data (1 minute for each):
 2 [Walking] Right-hand jacket pocket  
 3 [Walking] Left-hand jacket pocket  
 4 [Walking] In backpack  
-5 [Jumping] Right-hand pant pocket  
-6 [Jumping] Left-hand pant pocket  
-7 [Jumping] Right-hand jacket pocket  
-8 [Jumping] Left-hand jacket pocket  
-9 [Jumping] In backpack  
+5 [Walking] Right-hand
+6 [Jumping] Right-hand pant pocket  
+7 [Jumping] Left-hand pant pocket  
+8 [Jumping] Right-hand jacket pocket  
+9 [Jumping] Left-hand jacket pocket  
+10 [Jumping] In backpack  
+11 [Jumping] Right-hand
   
   
 File name formatting will adhere to:  
 Activity_Number-FirstName
+  
+Example:
+*2-Zack* indicates walking right hand jacket pocket for Zack
