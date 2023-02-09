@@ -6,21 +6,21 @@
 
 - Data was collected using each individual's phone, using Phyphox  on the "Acceleration (without g)" setting.
 
--  Each team member will perform the following for one (1) minute, totalling thirty-six (36) individual samples:
-
-CODE ACTIVITY PLACEMENT
-0 [Walking] Right-hand pant pocket  
-1 [Walking] Left-hand pant pocket  
-2 [Walking] Right-hand jacket pocket  
-3 [Walking] Left-hand jacket pocket  
-4 [Walking] In backpack  
-5 [Walking] Right-hand  
-6 [Jumping] Right-hand pant pocket  
-7 [Jumping] Left-hand pant pocket  
-8 [Jumping] Right-hand jacket pocket  
-9 [Jumping] Left-hand jacket pocket  
-10 [Jumping] In backpack  
-11 [Jumping] Right-hand
+-  Each team member will perform the following for one (1) minute, totalling thirty-six (36) individual samples:   
+   
+CODE ACTIVITY PLACEMENT   
+0. [Walking] Right-hand pant pocket  
+1. [Walking] Left-hand pant pocket  
+2. [Walking] Right-hand jacket pocket  
+3. [Walking] Left-hand jacket pocket  
+4. [Walking] In backpack  
+5. [Walking] Right-hand  
+6. [Jumping] Right-hand pant pocket  
+7. [Jumping] Left-hand pant pocket  
+8. [Jumping] Right-hand jacket pocket  
+9. [Jumping] Left-hand jacket pocket  
+10. [Jumping] In backpack  
+11. [Jumping] Right-hand
   
   
 - File name formatting will adhere to:  
