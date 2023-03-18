@@ -1,38 +1,46 @@
 import h5py as h5
-import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider, Button
 import math
-import random
 
-# Seed random (used for randomly splitting data into test vs train)
-random.seed()
+def y(i):
+    return dataset1[int(i)*wS[1]:(int(i)+1)*wS[1],4]
+
+def update(val):
+    line.set_ydata(y(freq_slider.val))
+    fig.canvas.draw_idle()
 
 # Open HDF5
 HDF5File = h5.File("data.hdf5", 'r')
 
-# Verification
-print("Level 1 Groups: "+str(HDF5File.keys()))
+keyList = list([key for key in HDF5File["dataset/Train"].keys()])
+dataset0 = HDF5File["Jillian"]["0-Jillian"]  # Walking
+dataset1 = HDF5File["Jillian"]["6-Jillian"]  # Jumping
 
-# Create list of keys in each group (makes it easier to index keys group[4] if theyre in a list like this)
-keyList = [key for key in HDF5File["dataset/Train"].keys()]
+wS = [int(math.floor(dataset0.shape[0]/12)), int(math.floor(dataset1.shape[0]/12))]  # Window size (~5s)
+i = 4
 
+fig, ax = plt.subplots(2,2)
+line, = ax[0,0].plot(dataset0[:,0], dataset0[:,4])
+line, = ax[0,1].plot(dataset1[:,0], dataset1[:,4])
 
-i = 0
-
-for key in keyList:
-   lines = HDF5File["dataset/Train"][key][()].shape[0]
-   span = HDF5File["dataset/Train"][key][lines-1][0]-HDF5File["dataset/Train"][key][0][0]
-   print("--+-- " + key + " --+--")
-   print("Number of lines: " + str(lines))
-   print("Total duration: " + str(span))
-   print("Data collection rate: " + str(lines/span))
+line, = ax[1,0].plot(dataset0[2*wS[0]:(2+1)*wS[0],0], dataset0[2*wS[0]:(2+1)*wS[0],4])
+line, = ax[1,1].plot(dataset1[4*wS[1]:(4+1)*wS[1],0], dataset1[2*wS[1]:(2+1)*wS[1],4])
+fig.suptitle('Plot of ' + str(keyList[6]), fontsize=16)
 
 
 
-   # print("First time-point: " + str(HDF5File["Jillian"][keyList[i]][0][0]))
-   # print("First line: " + str(HDF5File["Jillian"][keyList[i]][0]))
-   #
-   # print("Last time-point: " + str(HDF5File["Jillian"][keyList[i]][last-1][0]))
-   # print("Last line: " + str(HDF5File["Jillian"][keyList[i]][last-1]))
-# print("Contents of \"" + str(keyList[4]) + "\": "+str(HDF5File["Jillian"][keyList[4]][()].shape[0]))
-# print("Shape of \"" + str(testKeys[4]) + "\": "+str(HDF5File["dataset/Test"][testKeys[4]].shape))
+
+axfreq = fig.add_axes([0.25, 0.1, 0.65, 0.03])
+freq_slider = Slider(
+    ax=axfreq,
+    label='i',
+    valmin=0,
+    valmax=11,
+    valinit=5,
+)
+
+freq_slider.on_changed(update)
+
+plt.show()
 
