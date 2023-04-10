@@ -2,12 +2,9 @@ import h5py as h5
 import math
 import random
 import numpy as np
-
-def make5(dataset):
-   dataset.resize(dataset.shape[0] + 1, axis=0)
-   dataset[dataset.shape[0] - 1, 0] = dataset[0, 0] + 5
-   for i in range(1, 6):
-      dataset[dataset.shape[0] - 1, i] = dataset[dataset.shape[0] - 2, i]
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 
 # Seed random (used for randomly splitting data into test vs train)
 random.seed()
@@ -25,71 +22,68 @@ HDF5File.create_group("dataset")
 HDF5File["dataset"].create_group("Train")
 HDF5File["dataset"].create_group("Test")
 
-
 # Populate each individual's group with their datasets, by creating a Numpy array from .csv files.
-for i in range(0,12):
-   HDF5File["Jillian"].create_dataset(str(i)+"-Jillian", data=np.genfromtxt("./Data/"+str(i)+"-Jillian/"+str(i)+"-Jillian.csv", delimiter=','))
-   HDF5File["Zack"].create_dataset(str(i)+"-Zack", data=np.genfromtxt("./Data/"+str(i)+"-Zack/"+str(i)+"-Zack.csv", delimiter=','))
-   HDF5File["Zeerak"].create_dataset(str(i)+"-Zeerak", data=np.genfromtxt("./Data/"+str(i)+"-Zeerak/"+str(i)+"-Zeerak.csv", delimiter=','))
+for i in range(0, 12):
+    HDF5File["Jillian"].create_dataset(str(i) + "-Jillian",
+                                       data=np.genfromtxt("./Data/" + str(i) + "-Jillian/" + str(i) + "-Jillian.csv",
+                                                          delimiter=','))
+    HDF5File["Zack"].create_dataset(str(i) + "-Zack",
+                                    data=np.genfromtxt("./Data/" + str(i) + "-Zack/" + str(i) + "-Zack.csv",
+                                                       delimiter=','))
+    HDF5File["Zeerak"].create_dataset(str(i) + "-Zeerak",
+                                      data=np.genfromtxt("./Data/" + str(i) + "-Zeerak/" + str(i) + "-Zeerak.csv",
+                                                         delimiter=','))
 
+# To create the 5-second windows, we will go through each of the original .csv files, and copy 5-second segments into
+# their own datasets (create a list of 5-second datasets), then split and shuffle that list of datasets between train and test.
 
-# This is all to get key list in random order, but hdf5 seems to alphabetically order datasets in a group...
+# We will have a lot of overlap between windows by only jumping 100 csv lines between windows.
+
+# First create a dictionary which associates each key with the name of the containing group (team member name)
+# Then create a list of those keys which we can iterate over
 allDatasetDict = {}
 nameList = ["Jillian", "Zack", "Zeerak"]
 for name in nameList:
-   for key in HDF5File[name].keys():
-      allDatasetDict[key] = name
-allDatasetKeys = list(allDatasetDict.keys()) # random order of keys which reference dict
-random.shuffle(allDatasetKeys)
+    for key in HDF5File[name].keys():
+        allDatasetDict[key] = name
+allDatasetKeys = list(allDatasetDict.keys())
 
-
-# Split 60 second datasets into (roughly) 5 second windows. I chose to only extract 55 seconds from each 60 second dataset
-end = 0
-windowCount = 0 # counts how many windows (5-seconds) are created
-durations = []
-
+# Go through each 1-minute dataset and extract many 5-second windows into their own datasets
+winList = [] # List of 5-second windows (tables)
+overlap = 100  # This is how much the window "jumps" forward each time. Increase for fewer windows
 for key in allDatasetKeys:
-   lineCount = HDF5File[allDatasetDict[key]][key][()].shape[0]  # number of lines in this dataset
-   srcDataset = HDF5File[allDatasetDict[key]][key]  # the dataset in question
-   for k in range(0, 11):
-      windowCount = windowCount + 1  # one more window made
-      start = end + 1  # The starting line index for this window
-      end = int(end + math.floor(lineCount/12)) # estimated ending line index for this window
-      lastDur = 0  # Will hold duration of previous iteration's window
-      thisDur = srcDataset[end][0] - srcDataset[start][0]  # duration of first iteration's window
-      while 5.0-thisDur > 0:  # get as close as possible to 5 seconds, without going over
-         end = end + 1  # still less than 5? try incrementing
-         lastDur = thisDur  # duration of (now) previous window (so time at end line minus time at starting line)
-         thisDur = srcDataset[end][0] - srcDataset[start][0]
-      end = end - 1  # previous loop failed, so must have gone one line too far
-      durations.append(srcDataset[end][0] - srcDataset[start][0])  # Used to calculate average window size before forcing to 5 seconds
-      if random.random() >=0.1:  # split test and training data
-         # Make new 5-second window from slice of larger 60-second dataset and make it resizeable
-         HDF5File["dataset/Train"].create_dataset(key + "-Window" + str(k), data=srcDataset[start:end, :], maxshape=(None, None))
-      else:
-         HDF5File["dataset/Test"].create_dataset(key + "-Window" + str(k), data=srcDataset[start:end, :], maxshape=(None, None))
-   end = 0
+    lines = HDF5File[allDatasetDict[key]][key].shape[0]  # Number of lines in this dataset
+    src = HDF5File[allDatasetDict[key]][key]  # Pointer to source dataset (easier than using that hdf5file thing)
+    start = 0  # Starting index always 0
+    end = int(math.floor(lines / 12))  # Guess of where first "end" will be (60seconds / 12 ~= 5 seconds)
 
-# Make windows EXACTLY 5 seconds
-for key in HDF5File["dataset/Train"].keys():  # for each 5-second window in Training
-   make5(HDF5File["dataset/Train"][key])
-for key in HDF5File["dataset/Test"].keys():  # for each 5-second window in Testing
-   make5(HDF5File["dataset/Test"][key])
+    while end < lines:  # While our window doesn't overflow EOF
+        if src[end, 0] - src[start, 0] < 5:  # Increment window until it's JUST under 5 seconds long
+            end += 1
+            continue
+        winList.append(src[start:end, :])  # Add this window to list of windows
+        start += overlap
+        end += overlap - 2  # This is so that we are under 5 seconds again, and iterate to find closest window to 5 seconds
 
+# Randomly split windows into train and test sets (and shuffle windows)
+train, test = train_test_split(winList, train_size=0.9, random_state=69, shuffle=True)
 
-# This stuff just computes average window length before and after forcing it to be 5 seconds EXACTLY
-sum = 0
-for val in durations:
-   sum = sum + val
-print("old average duration of window: " + str(float(sum/windowCount)))
+# Create dataset for each 5-second training window
+index = 0
+for wnd in train:
+   HDF5File["dataset/Train"].create_dataset("train_" + str(index), data=wnd)
+   index += 1
 
-sum = 0
-for key in list(HDF5File["dataset/Train"].keys()):
-    dataset = HDF5File["dataset/Train"][key]
-    sum += dataset[dataset.shape[0]-1][0]-dataset[0][0]
+# Create dataset for each 5-second testing window
+index = 0
+for wnd in test:
+   HDF5File["dataset/Test"].create_dataset("test_" + str(index), data=wnd)
+   index += 1
 
-for key in list(HDF5File["dataset/Test"].keys()):
-   dataset = HDF5File["dataset/Test"][key]
-   sum += dataset[dataset.shape[0] - 1][0] - dataset[0][0]
+# Debug: check that duration of a random window is ~5 seconds and number of keys in test (~10%)
+print(len(HDF5File["dataset/Test"].keys()))
 
-print("new average duration of window: " + str(float(sum/windowCount)))
+src = HDF5File["dataset/Test/test_87"]
+print(src[:,:])
+print(src.shape[0])
+print(str(src[src.shape[0]-1,0] - src[0,0]))
