@@ -27,9 +27,15 @@ for key in allDatasetKeys: # Go through every 5-second window and apply SMA filt
    HDF5File["dataset/" + allDatasetDict[key]].create_dataset("sma_" + str(key), data=dataset_sma) # create new (averaged) window with same name, but "sma_" prefixed
 
 #debug, to compare against first set of print statements
+print("Training Data:")
 print(len(HDF5File["dataset/Train"].keys()))
 print(HDF5File["dataset/Train"].keys())
-print(HDF5File["dataset/Train/sma_train_69"].shape[0])
+print("Testing Data:")
+print(len(HDF5File["dataset/Test"].keys()))
+print(HDF5File["dataset/Test"].keys())
+print(HDF5File["dataset/Test/sma_test_69"].shape[0])
+
+
 
 # which column (acceleration) to plot
 col = 2

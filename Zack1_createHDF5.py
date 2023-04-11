@@ -1,13 +1,10 @@
 import h5py as h5
 import math
-import random
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
-# Seed random (used for randomly splitting data into test vs train)
-random.seed()
 
 # Create HDF5 file (root)
 HDF5File = h5.File("data.hdf5", 'w')
