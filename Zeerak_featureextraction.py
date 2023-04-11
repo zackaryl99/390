@@ -3,7 +3,9 @@ import pandas as pd
 import numpy as np
 
 # Open file in read/write mode (we're going to apply SMA filter)
-data = pd.read_csv("0-Zeerak.csv")
-features = pd.DataFrame(data, columns=['Mean', 'Min', 'Max', 'Median', 'Kurtosis', 'Skewness', 'STD'])
+data = pd.read_csv("features_train.csv")
+# features = pd.DataFrame(columns=['Mean', 'Min', 'Max', 'Median', 'Kurtosis', 'Skewness', 'STD'])
+features_train = pd.DataFrame(columns=['meanABS', 'minABS', 'maxABS', 'medianABS', 'stdABS', 'kurtosisABS', 'skewABS', 'label', '', ''])
+features_test = pd.DataFrame(columns=['meanABS', 'minABS', 'maxABS', 'medianABS', 'stdABS', 'kurtosisABS', 'skewABS', 'label', '', ''])
 
 #print(features)
