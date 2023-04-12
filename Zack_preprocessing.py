@@ -13,30 +13,16 @@ for group in groupList:
         allDatasetDict[key] = group
 allDatasetKeys = list(allDatasetDict.keys())
 
-#debug. this is all to make sure same number of datasets exist before/after
+# For comparing on plot at end
 orig = HDF5File["dataset/Train/train_69"][:] # make copy of dataset so we can apply "manual" sma later to verify script works
-print(HDF5File["dataset/Train/train_69"].shape[0]) # print number of lines in dataset 69
-print(len(HDF5File["dataset/Train"].keys())) # print number of keys (number of windows in train set)
-print(HDF5File["dataset/Train"].keys()) # print list of keys
-
 
 for key in allDatasetKeys: # Go through every 5-second window and apply SMA filter
    dataset = HDF5File["dataset/" + allDatasetDict[key]][key] # pointer to window in question
-   dataset_sma = pd.DataFrame(dataset).rolling(20).mean() # create averaged version of aforementioned window
+   dataset_sma = pd.DataFrame(dataset[:,1:]).rolling(20).mean() # create averaged version of aforementioned window
+   dataset_sma = pd.concat([pd.DataFrame(dataset).iloc[:,0], dataset_sma], axis=1)
    dataset_sma.dropna(inplace=True) # drop all the NANs that the filter creates at beginning of dataset
    del HDF5File["dataset/" + str(allDatasetDict[key]) + "/" + str(key)] # delete old (unaveraged) window
    HDF5File["dataset/" + allDatasetDict[key]].create_dataset("sma_" + str(key), data=dataset_sma) # create new (averaged) window with same name, but "sma_" prefixed
-
-#debug, to compare against first set of print statements
-print("Training Data:")
-print(len(HDF5File["dataset/Train"].keys()))
-print(HDF5File["dataset/Train"].keys())
-print("Testing Data:")
-print(len(HDF5File["dataset/Test"].keys()))
-print(HDF5File["dataset/Test"].keys())
-print(HDF5File["dataset/Test/sma_test_69"].shape[0])
-
-
 
 # which column (acceleration) to plot
 col = 2
