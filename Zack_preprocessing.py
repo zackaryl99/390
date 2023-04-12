@@ -19,6 +19,7 @@ print(HDF5File["dataset/Train/train_69"].shape[0]) # print number of lines in da
 print(len(HDF5File["dataset/Train"].keys())) # print number of keys (number of windows in train set)
 print(HDF5File["dataset/Train"].keys()) # print list of keys
 
+
 for key in allDatasetKeys: # Go through every 5-second window and apply SMA filter
    dataset = HDF5File["dataset/" + allDatasetDict[key]][key] # pointer to window in question
    dataset_sma = pd.DataFrame(dataset).rolling(20).mean() # create averaged version of aforementioned window
