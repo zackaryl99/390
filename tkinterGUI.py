@@ -1,0 +1,125 @@
+import pandas as pd
+import tkinter as tk
+from tkinter import *
+from tkinter import ttk
+from tkinter import filedialog
+import matplotlib.pyplot as plt
+import h5py as h5
+HDF5File = h5.File("data.hdf5", 'r')
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
+                                               NavigationToolbar2Tk)
+# Initializing window and window size
+my_w = tk.Tk()
+my_w.geometry("1000x700")  # Size of the window
+my_w.title('www.csvclassifier.com')
+
+# Add image file
+bg = PhotoImage(file="orange.png")
+
+# Create a frame widget
+#frame=Frame(my_w, width=300, height=300)
+#frame.grid(row=0, column=0, sticky="NW")
+
+# Create a label widget
+label=Label(my_w, text="I am inside a Frame", font='Arial 17 bold')
+label.place(relx=0.5, rely=0.5, anchor=CENTER)
+
+# Show image using label
+label1 = Label(my_w, image=bg)
+label1.place(x=0, y=0)
+
+#Initializing text
+my_font1 = ('times', 12, 'bold')
+my_font2 = ('times', 20, 'bold')
+
+#Adding space on left
+label.grid(row=1, column=1, padx=5)
+
+label = tk.Label(
+    text="Welcome to our CSV Classifier",
+    fg="white",
+    bg="black",
+    width=40,
+    height=3,
+    font=my_font2
+)
+label.grid(row=1, column=2, padx=5)
+
+lb1 = tk.Label(my_w, text='Read File & create DataFrame',
+               width=30, font=my_font1)
+lb1.grid(row=2, column=2, pady=5)
+b1 = tk.Button(my_w, text='Browse File',
+               width=20, command=lambda: upload_file())
+b1.grid(row=3, column=2, pady=5)
+lb2 = tk.Label(my_w, width=40, text='', bg='lightyellow')
+lb2.grid(row=4, column=2, padx=5)
+l1 = []  # List to hold headers of the Treeview
+
+
+def upload_file():
+    global df, l1
+    f_types = [('CSV files', "*.csv"), ('All', "*.*")]
+    file = filedialog.askopenfilename(filetypes=f_types)
+    lb1.config(text=file)  # display the path
+    df = pd.read_csv(file)  # create DataFrame
+    l1 = list(df)  # List of column names as header
+    str1 = "Rows:" + str(df.shape[0]) + " , Columns:" + str(df.shape[1])
+    # print(str1)
+    lb2.config(text=str1)  # add to Text widget
+    trv_refresh()  # show Treeview
+
+
+def trv_refresh():  # Refresh the Treeview to reflect changes
+    global df, trv, l1
+    r_set = df.to_numpy().tolist()  # create list of list using rows
+    trv = ttk.Treeview(my_w, selectmode='browse', height=10,
+                       show='headings', columns=l1)
+    trv.grid(row=5, column=2, columnspan=3, padx=10, pady=20)
+
+    for i in l1:
+        trv.column(i, width=90, anchor='c')
+        trv.heading(i, text=str(i))
+    for dt in r_set:
+        v = [r for r in dt]
+        trv.insert("", 'end', iid=v[0], values=v)
+
+def plot():
+
+    #Plotting test
+    fig3, ax3 = plt.subplots(2, 3)
+
+    # for walking
+    for j in range(0, 3):
+        ax3[0, j].set_ylim(-40, 40)
+        ax3[0, j].set_xlim(0, 60)
+
+    # WALKING
+    ax3[0, 0].plot(HDF5File["Jillian"]["2-Jillian"][:, 0], HDF5File["Jillian"]["2-Jillian"][:, 4])
+    ax3[0, 0].set_title('Jillian [walking]')
+
+    # creating the Tkinter canvas
+    # containing the Matplotlib figure
+    canvas = FigureCanvasTkAgg(fig3, master=my_w)
+    canvas.draw()
+
+    # placing the canvas on the Tkinter window
+    canvas.get_tk_widget().grid(row=6, column=2, pady=5, padx=5)
+
+    # creating the Matplotlib toolbar
+    #toolbar = NavigationToolbar2Tk(canvas, my_w)
+    #toolbar.update()
+
+    # placing the toolbar on the Tkinter window
+    canvas.get_tk_widget().grid()
+
+# button that displays the plot
+
+b2 = tk.Button(my_w, text='Plot',
+               width=20, bg='red', command=lambda: plot())
+b2.grid(row=10, column=2, padx=5)
+# place the button
+# in main window
+
+
+my_w.mainloop()  # Keep the window open
