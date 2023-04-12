@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score
 model = joblib.load("model.joblib")
 
 # Read in supplied .csv (what we're trying to predict)------------------------------------------------------------------
-new_data = pd.read_csv("new_data_mixed.csv")
+new_data = pd.read_csv("new_data_walk.csv")
 
 # Split into list of windows (~5 seconds long)--------------------------------------------------------------------------
 winList = [] # List of 5-second windows (tables)

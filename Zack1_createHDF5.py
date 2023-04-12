@@ -47,7 +47,7 @@ allDatasetKeys = list(allDatasetDict.keys())
 
 # Go through each 1-minute dataset and extract many 5-second windows into their own datasets
 winList = [] # List of 5-second windows (tables)
-overlap = 100  # This is how much the window "jumps" forward each time. Increase for fewer windows
+overlap = 200  # This is how much the window "jumps" forward each time. Increase for fewer windows
 for key in allDatasetKeys:
     lines = HDF5File[allDatasetDict[key]][key].shape[0]  # Number of lines in this dataset
     src = HDF5File[allDatasetDict[key]][key]  # Pointer to source dataset (easier than using that hdf5file thing)
@@ -80,7 +80,10 @@ for wnd in test:
 # Debug: check that duration of a random window is ~5 seconds and number of keys in test (~10%)
 print(len(HDF5File["dataset/Test"].keys()))
 
-src = HDF5File["dataset/Test/test_87"]
+src = HDF5File["dataset/Test/test_2"]
 print(src[:,:])
 print(src.shape[0])
 print(str(src[src.shape[0]-1,0] - src[0,0]))
+
+print("Total windows: ")
+print(str(len(HDF5File["dataset/Test"].keys())+len(HDF5File["dataset/Train"].keys())))

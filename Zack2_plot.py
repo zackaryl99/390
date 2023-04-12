@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import h5py as h5
 HDF5File = h5.File("data.hdf5", 'r')
-
+print(len(HDF5File["dataset/Train"].keys()))
 # Compare walking vs jumping for Zack right-hand jacket procket
 fig1, ax1 = plt.subplots(2,4)
 for i in range(0,2):

@@ -18,7 +18,7 @@ orig = HDF5File["dataset/Train/train_69"][:] # make copy of dataset so we can ap
 
 for key in allDatasetKeys: # Go through every 5-second window and apply SMA filter
    dataset = HDF5File["dataset/" + allDatasetDict[key]][key] # pointer to window in question
-   dataset_sma = pd.DataFrame(dataset[:,1:]).rolling(20).mean() # create averaged version of aforementioned window
+   dataset_sma = pd.DataFrame(dataset[:,1:]).rolling(9).mean() # create averaged version of aforementioned window
    dataset_sma = pd.concat([pd.DataFrame(dataset).iloc[:,0], dataset_sma], axis=1)
    dataset_sma.dropna(inplace=True) # drop all the NANs that the filter creates at beginning of dataset
    del HDF5File["dataset/" + str(allDatasetDict[key]) + "/" + str(key)] # delete old (unaveraged) window
