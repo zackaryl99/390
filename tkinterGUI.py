@@ -5,6 +5,8 @@ from tkinter import ttk
 from tkinter import filedialog
 import matplotlib.pyplot as plt
 import h5py as h5
+import joblib
+import math
 HDF5File = h5.File("data.hdf5", 'r')
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
@@ -16,6 +18,9 @@ my_w.title('www.csvclassifier.com')
 
 # Add image file
 bg = PhotoImage(file="orange.png")
+
+# Variable to hold filepath of selected CSV
+filepath = ""
 
 # Create a frame widget
 #frame=Frame(my_w, width=300, height=300)
@@ -50,17 +55,21 @@ lb1 = tk.Label(my_w, text='Read File & create DataFrame',
                width=30, font=my_font1)
 lb1.grid(row=2, column=2, pady=5)
 b1 = tk.Button(my_w, text='Browse File',
-               width=20, command=lambda: upload_file())
+               width=20, command=lambda: upload_file_wrapper())
 b1.grid(row=3, column=2, pady=5)
 lb2 = tk.Label(my_w, width=40, text='', bg='lightyellow')
 lb2.grid(row=4, column=2, padx=5)
 l1 = []  # List to hold headers of the Treeview
 
+def upload_file_wrapper():
+    global filepath
+    filepath = upload_file()
 
 def upload_file():
     global df, l1
     f_types = [('CSV files', "*.csv"), ('All', "*.*")]
     file = filedialog.askopenfilename(filetypes=f_types)
+    print(file)
     lb1.config(text=file)  # display the path
     df = pd.read_csv(file)  # create DataFrame
     l1 = list(df)  # List of column names as header
@@ -68,7 +77,7 @@ def upload_file():
     # print(str1)
     lb2.config(text=str1)  # add to Text widget
     trv_refresh()  # show Treeview
-
+    return file
 
 def trv_refresh():  # Refresh the Treeview to reflect changes
     global df, trv, l1
@@ -84,39 +93,78 @@ def trv_refresh():  # Refresh the Treeview to reflect changes
         v = [r for r in dt]
         trv.insert("", 'end', iid=v[0], values=v)
 
-def plot():
 
-    #Plotting test
-    fig3, ax3 = plt.subplots(2, 3)
+def classify():
+    # import trained model----------------------------------------------------------------------------------------------
+    model = joblib.load("model.joblib")
 
-    # for walking
-    for j in range(0, 3):
-        ax3[0, j].set_ylim(-40, 40)
-        ax3[0, j].set_xlim(0, 60)
+    # Read in supplied .csv (what we're trying to predict)--------------------------------------------------------------
+    new_data = pd.read_csv(filepath)
 
-    # WALKING
-    ax3[0, 0].plot(HDF5File["Jillian"]["2-Jillian"][:, 0], HDF5File["Jillian"]["2-Jillian"][:, 4])
-    ax3[0, 0].set_title('Jillian [walking]')
+    # Split into list of windows (~5 seconds long)----------------------------------------------------------------------
+    winList = []  # List of 5-second windows (tables)
+    overlap = 5  # This is how much the window "jumps" forward each time. Increase for fewer windows
+    lines = new_data.shape[0]  # Number of lines in this dataset
+    start = 0  # Starting index always 0
+    end = int(math.floor(lines / 12))  # Guess of where first "end" will be (60seconds / 12 ~= 5 seconds)
 
-    # creating the Tkinter canvas
-    # containing the Matplotlib figure
-    canvas = FigureCanvasTkAgg(fig3, master=my_w)
+    while end < lines:  # While our window doesn't overflow EOF
+        if new_data.iloc[end, 0] - new_data.iloc[start, 0] < 5:  # Increment window until it's JUST under 5 seconds long
+            end += 1
+            continue
+        winList.append(new_data.iloc[start:end, :])  # Add this window to list of windows
+        start += overlap
+        end += overlap - 2  # This is so that we are under 5 seconds again, and iterate to find closest window to 5 secs
+
+    # Apply SMA to each window (create new window list) ----------------------------------------------------------------
+    winListSMA = []
+    for win in winList:
+        # filtered = win.rolling(20).mean()
+        filtered = (win.iloc[:, 1:]).rolling(5).mean()
+        filtered = pd.concat([win.iloc[:, 0], filtered],
+                             axis=1)  # This is so we dont apply moving average filter to time col
+        filtered.dropna(inplace=True)
+        winListSMA.append(filtered)
+
+    # Extract features--------------------------------------------------------------------------------------------------
+    features = pd.DataFrame(columns=['meanABS', 'stdABS', 'maxABS', 'kurtosisABS', 'skewABS'])
+    i = 0
+    for win in winListSMA:
+        meanABS = win.mean()[4]
+        stdABS = win.std()[4]
+        maxABS = win.max()[4]
+        kurtosisABS = win.kurt()[4]
+        skewABS = win.skew()[4]
+        features.loc[i] = [meanABS] + [stdABS] + [maxABS] + [kurtosisABS] + [skewABS]
+        i += 1
+
+    # Make predictions--------------------------------------------------------------------------------------------------
+    pred_test = model.predict(features)
+    print(pred_test)
+
+    # Plot predictions for each window----------------------------------------------------------------------------------
+    fig, ax = plt.subplots()
+    ax.plot(range(0, len(pred_test)), pred_test)
+    ax.set_title('Predictions')
+    fig.suptitle('Predictions for windows of new (unseen) data', fontsize=16)
+    canvas = FigureCanvasTkAgg(fig, master=my_w)
     canvas.draw()
 
     # placing the canvas on the Tkinter window
     canvas.get_tk_widget().grid(row=6, column=2, pady=5, padx=5)
 
-    # creating the Matplotlib toolbar
-    #toolbar = NavigationToolbar2Tk(canvas, my_w)
-    #toolbar.update()
-
     # placing the toolbar on the Tkinter window
     canvas.get_tk_widget().grid()
+
+    #write results to csv
+    results = pd.DataFrame(data=pred_test)
+    results.to_csv("results.csv")
+
 
 # button that displays the plot
 
 b2 = tk.Button(my_w, text='Plot',
-               width=20, bg='red', command=lambda: plot())
+               width=20, bg='red', command=lambda: classify())
 b2.grid(row=10, column=2, padx=5)
 # place the button
 # in main window
