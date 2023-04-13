@@ -35,6 +35,42 @@ ax1[1, 3].set_title('Abs. Accel. [RHJ - Jumping]')
 
 fig1.suptitle('Comparison of walking vs jumping', fontsize=16)
 
+% Plotting Jillian Backpack sample
+fig4, ax4 = plt.subplots(2,4)
+
+for i in range(0,2):
+    for j in range(0,4):
+        ax4[i, j].set_ylim(-40, 40)
+
+# WALKING
+ax4[0, 0].plot(HDF5File["Jillian"]["4-Jillian"][:,0], HDF5File["Jillian"]["4-Jillian"][:,1])
+ax4[0, 0].set_title('X Accel. [RHJ - Walking]')
+
+ax4[0, 1].plot(HDF5File["Jillian"]["4-Jillian"][:,0], HDF5File["Jillian"]["4-Jillian"][:,2])
+ax4[0, 1].set_title('Y Accel. [RHJ - Walking]')
+
+ax4[1, 0].plot(HDF5File["Jillian"]["4-Jillian"][:,0], HDF5File["Jillian"]["4-Jillian"][:,3])
+ax4[1, 0].set_title('Z Accel. [RHJ - Walking]')
+
+ax4[1, 1].plot(HDF5File["Jillian"]["4-Jillian"][:,0], HDF5File["Jillian"]["4-Jillian"][:,4])
+ax4[1, 1].set_title('Abs. Accel. [RHJ - Walking]')
+
+
+# JUMPING
+ax4[0, 2].plot(HDF5File["Jillian"]["10-Jillian"][:,0], HDF5File["Jillian"]["10-Jillian"][:,1])
+ax4[0, 2].set_title('X Accel. [BP - Jumping]')
+
+ax4[0, 3].plot(HDF5File["Jillian"]["10-Jillian"][:,0], HDF5File["Jillian"]["10-Jillian"][:,2])
+ax4[0, 3].set_title('Y Accel. [BP - Jumping]')
+
+ax4[1, 2].plot(HDF5File["Jillian"]["10-Jillian"][:,0], HDF5File["Jillian"]["10-Jillian"][:,3])
+ax4[1, 2].set_title('Z Accel. [BP - Jumping]')
+
+ax4[1, 3].plot(HDF5File["Jillian"]["10-Jillian"][:,0], HDF5File["Jillian"]["10-Jillian"][:,4])
+ax4[1, 3].set_title('Abs. Accel. [BP - Jumping]')
+
+fig4.suptitle('Comparison of walking vs jumping 4', fontsize=16)
+
 # Compare walking between group mates
 fig2, ax2 = plt.subplots(1,3)
 for j in range(0,3):
