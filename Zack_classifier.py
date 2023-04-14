@@ -30,7 +30,9 @@ features_test = pd.read_csv("features_test.csv")
 
 # Split training into data (features) and labels (1/0)
 data_train = features_train.iloc[:,0:-1]
+print(data_train)
 labels_train = features_train.iloc[:,-1]
+print(labels_train)
 
 # Split testing into data (features) and labels (1/0)
 data_test = features_test.iloc[:,0:-1]

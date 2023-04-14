@@ -1,7 +1,48 @@
 import matplotlib.pyplot as plt
 import h5py as h5
+import pandas as pd
 HDF5File = h5.File("data.hdf5", 'r')
 print(len(HDF5File["dataset/Train"].keys()))
+
+# comparaison for report (data collection placements)
+limp = pd.read_csv("limp.csv")
+nolimp = pd.read_csv("nolimp.csv")
+tightright = pd.read_csv("tightright.csv")
+regular = pd.read_csv("regular.csv")
+
+fig0, ax0 = plt.subplots(2,4)
+for i in range(0,4):
+    for j in range(0,2):
+        ax0[j, i].set_ylim(-40, 40)
+        ax0[j, i].set_xlim(-1, 11)
+# gait
+ax0[0,0].plot(tightright.iloc[1:,0], tightright.iloc[1:,1])
+ax0[0,0].set_title('tightright (X)')
+
+ax0[0,1].plot(tightright.iloc[1:,0], tightright.iloc[1:,2])
+ax0[0,1].set_title('tightright (Y)')
+
+ax0[0,2].plot(tightright.iloc[1:,0], tightright.iloc[1:,3])
+ax0[0,2].set_title('tightright (Z)')
+
+ax0[0,3].plot(tightright.iloc[1:,0], tightright.iloc[1:,4])
+ax0[0,3].set_title('tightright (ABS)')
+
+# no gait
+ax0[1,0].plot(regular.iloc[1:,0], regular.iloc[1:,1])
+ax0[1,0].set_title('Regular (X)')
+
+ax0[1,1].plot(regular.iloc[1:,0], regular.iloc[1:,2])
+ax0[1,1].set_title('Regular (Y)')
+
+ax0[1,2].plot(regular.iloc[1:,0], regular.iloc[1:,3])
+ax0[1,2].set_title('Regular (Z)')
+
+ax0[1,3].plot(regular.iloc[1:,0], regular.iloc[1:,4])
+ax0[1,3].set_title('Regular (ABS)')
+
+fig0.suptitle('Walking limp vs no limp', fontsize=16)
+
 # Compare walking vs jumping for Zack right-hand jacket procket
 fig1, ax1 = plt.subplots(2,4)
 for i in range(0,2):
